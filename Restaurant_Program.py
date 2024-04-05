@@ -1,19 +1,3 @@
-'''
-Current requested fixes:
-- Adding two or more of the same item to a deal may not be possible. (No duplicate entries, no quantity field)
-- Deals with multiple item options in any form aren't supported. ("$2 Big Fish OR Fiery Big Fish", "20% any purchase",
-as examples)
-
-Proposed changes / additions:
-- Consider using a price discount ratio, not a discount amount, for each deal for more accessible calculations and comparisons.
-- Consideration for the occasional purchase requirement. (I've only found: "...with purchase of $1 or more" so far)
-- The inclusion of the redeemable 'points' values of each item if applicable (Such as with Burger King's 'crown' system)
-
-Changes last made on 3/20/2024:
-Some items and deals from the Burger King menu were added to the database.
-Discount percentage value added to each deal report for now - this is still up for discussion / retention or removal.
-'''
-
 import sqlite3
 
 # Connect to SQLite database (or create it if it doesn't exist)
@@ -90,14 +74,15 @@ def report_deals():
     current_deal_id = 0
     print(deals)
     for deal in deals:
+        print(deal)
         if deal[0] != current_deal_id:
             print(f"\nDeal ID: {deal[0]}, Name: {deal[1]}, Price: ${deal[2]:.2f}")
             current_deal_id = deal[0]
-            total_individual_price = sum([product[4] for product in deals if product[0] == deal[0]]) # Multiply each price by item amount 
+            total_individual_price = sum([product[4] for product in deals if product[0] == deal[0]])
             savingsDiff = total_individual_price - deal[2]
             savingsRatio = (1 - (deal[2] / total_individual_price)) * 100
             print(f"  Savings: ${savingsDiff:.2f} ({savingsRatio:.0f}% off)")
-        print(f"  Includes: {deal[3]} (Menu price here?)")
+        print(f"  Includes: {deal[3]} (${deal[4]})")
 
 # Additional functions like delete_product, update_product, delete_deal, update_deal can be implemented as needed.
 
