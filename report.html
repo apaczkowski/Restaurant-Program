@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .form-container form {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fff;
+            width: 30%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-container form h2 {
+            color: #007bff;
+            font-size: 1.2em;
+        }
+        .form-container form input[type="text"],
+        .form-container form input[type="submit"] {
+            display: block;
+            width: 90%;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .form-container form input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+        .form-container form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        th.sort-asc::after {
+            content: ' ▲';
+        }
+        th.sort-desc::after {
+            content: ' ▼';
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Products</h1>
+
+    <div class="form-container">
+        <!-- Insert Product Form -->
+        <form method="post" action="{{ url_for('insert_product') }}">
+            <h2>Insert</h2>
+            Product Name: <input type="text" name="product_name"><br>
+            Menu Price: <input type="text" name="menu_price"><br>
+            Points: <input type="text" name="points"><br>
+            Food Type: <input type="text" name="food_type"><br>
+            Menu: <input type="text" name="menu"><br>
+            <input type="submit" value="Insert">
+        </form>
+
+        <!-- Delete Product Form -->
+        <form method="post" action="{{ url_for('delete_product') }}">
+            <h2>Delete</h2>
+            Product ID: <input type="text" name="product_id"><br>
+            <input type="submit" value="Delete">
+        </form>
+
+        <!-- Update Product Form -->
+        <form method="post" action="{{ url_for('update_product') }}">
+            <h2>Update</h2>
+            Product ID: <input type="text" name="product_id"><br>
+            Product Name: <input type="text" name="product_name"><br>
+            Menu Price: <input type="text" name="menu_price"><br>
+            Points: <input type="text" name="points"><br>
+            Food Type: <input type="text" name="food_type"><br>
+            Menu: <input type="text" name="menu"><br>
+            <input type="submit" value="Update">
+        </form>
+    </div>
+
+    <!-- Filter and Report Products Form -->
+    <h2>Filter Products</h2>
+    <form method="post" action="{{ url_for('report_products') }}">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Restaurant ID</th>
+                <th>Menu Price</th>
+                <th>Points</th>
+                <th>Food Type</th>
+                <th>Menu</th>
+                <th>Price To Points</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="text" name="product_name" placeholder="Product Name"></td>
+                <td><input type="text" name="restaurant_id" placeholder="Restaurant ID"></td>
+                <td><input type="text" name="menu_price" placeholder="Min,Max"></td>
+                <td><input type="text" name="points" placeholder="Min,Max"></td>
+                <td><input type="text" name="food_type" placeholder="Food Type"></td>
+                <td><input type="text" name="menu" placeholder="Menu"></td>
+                <td><input type="text" name="price_to_points" placeholder="Min,Max"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Filter">
+    </form>
+
+    <!-- Products Table -->
+    <h2>Products</h2>
+    <table id="productsTable">
+        <thead>
+ <!--           <tr>
+                <th data-column="ProductID">ID</th>
+                <th data-column="ProductName">Name</th>
+                <th data-column="RestaurantID">Restaurant ID</th>
+                <th data-column="MenuPrice">Menu Price</th>
+                <th data-column="Points">Points</th>
+                <th data-column="FoodType">Food Type</th>
+                <th data-column="Menu">Menu</th>
+                <th data-column="PriceToPoints">Price To Points</th>
+            </tr>
+  -->
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.ProductID }}</td>
+                <td>{{ product.ProductName }}</td>
+                <td>{{ product.RestaurantID }}</td>
+                <td>{{ product.MenuPrice }}</td>
+                <td>{{ product.Points }}</td>
+                <td>{{ product.FoodType }}</td>
+                <td>{{ product.Menu }}</td>
+                <td>{{ product.PriceToPoints }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('index') }}">Back to Home</a>
+
+    <script>
+    // Wait until the entire DOM content is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the table element by its ID
+        const table = document.getElementById('productsTable');
+        // Get all the headers with a data-column attribute
+        const headers = table.querySelectorAll('th[data-column]');
+        // Initialize the sort order to ascending
+        let sortOrder = 'asc';
+
+        // Iterate over each header element
+        headers.forEach(header => {
+            // Add a click event listener to each header
+            header.addEventListener('click', () => {
+                // Get the column name from the data-column attribute
+                const column = header.getAttribute('data-column');
+                // Get all the rows in the table body as an array
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                // Sort the rows based on the text content of the cells in the clicked column
+                rows.sort((a, b) => {
+                    // Get the text content of the cells in the clicked column for both rows
+                    const aText = a.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim();
+                    const bText = b.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim();
+
+                    // If both text contents are numbers, compare them as numbers
+                    if (!isNaN(aText) && !isNaN(bText)) {
+                        // Sort based on the current sort order
+                        return sortOrder === 'asc' ? aText - bText : bText - aText;
+                    } else {
+                        // Otherwise, compare them as strings
+                        return sortOrder === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+                    }
+                });
+
+                // Append the sorted rows back to the table body
+                rows.forEach(row => table.querySelector('tbody').appendChild(row));
+
+                // Toggle the sort order for the next click
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+
+                // Remove any existing sort direction classes from all headers
+                headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+                // Add the appropriate sort direction class to the clicked header
+                header.classList.add(sortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+            });
+        });
+    });
+</script>
+</body>
+</html>
