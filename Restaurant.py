@@ -46,8 +46,7 @@ def insert_deal():
 
 @app.route('/report', methods=['GET', 'POST'])
 def report_products():
-#    query = "SELECT ProductID, ProductName, RestaurantCode, MenuPrice, Points, FoodType, Menu, ROUND((MenuPrice / Points * 100), 4) AS PriceToPoints FROM Product WHERE 1=1"
-    query = "SELECT p.ProductID, p.ProductName, p.RestaurantCode, p.MenuPrice, p.Points, p.FoodType, p.Menu, ROUND(r.restaurantpcf * (MenuPrice / Points * 10000), 4) AS PercentReturn FROM Product p, restaurants r WHERE 1=1 and p.restaurantcode = r.restaurantcode"
+    query = "SELECT ProductID, ProductName, RestaurantCode, MenuPrice, Points, FoodType, Menu, ROUND((MenuPrice / Points * 100), 4) AS PriceToPoints FROM Product WHERE 1=1"
     params = []
 
     if request.method == 'POST':
@@ -57,7 +56,7 @@ def report_products():
         points = request.form.get('points')
         food_type = request.form.get('food_type')
         menu = request.form.get('menu')
-        price_to_points = request.form.get('percent_return')
+        price_to_points = request.form.get('price_to_points')
 
         if product_name:
             query += " AND ProductName LIKE ?"
@@ -83,7 +82,7 @@ def report_products():
             params.append('%' + menu + '%')
         if price_to_points:
             min_value, max_value = map(float, price_to_points.split(','))
-            query += " AND PercentReturn BETWEEN ? AND ?"
+            query += " AND PriceToPoints BETWEEN ? AND ?"
             params.append(min_value)
             params.append(max_value)
 
@@ -161,6 +160,18 @@ def delete_product():
         return redirect(url_for('report_products'))
     return render_template('delete.html')
 
+@app.route('/delete_deal', methods=['POST'])
+def delete_deal():
+    if request.method == 'POST':
+        deal_id = request.form['deal_id']
+
+        conn = get_db_connection()
+        conn.execute("DELETE FROM Deals WHERE DealID = ?", (deal_id,))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('report_deals'))
+    return render_template('delete.html')
+
 @app.route('/update', methods=['GET', 'POST'])
 def update_product():
     if request.method == 'POST':
@@ -185,6 +196,25 @@ def update_product():
         conn.close()
         return redirect(url_for('report_products'))
     return render_template('update.html')
+
+@app.route('/update_deal', methods=['POST'])
+def update_deal():
+    if request.method == 'POST':
+        deal_id = request.form['deal_id']
+        deal_name = request.form['deal_name']
+        deal_price = request.form['deal_price']
+
+        conn = get_db_connection()
+        conn.execute("""
+            UPDATE Deals
+            SET DealName = ?, DealPrice = ?
+            WHERE DealID = ?
+        """, (deal_name, float(deal_price), deal_id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('report_deals'))
+    return render_template('update.html')
+
 if __name__ == '__main__':
-    app.run(debug=True,port=5005)
+    app.run(debug=True, port = 5005)
 
