@@ -5,13 +5,19 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
+import { MatTableModule } from '@angular/material/table';
+
+import { DealTableComponent } from './components/deal-table/deal-table.component';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DealTableComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatTableModule
   ],
   providers: [
     provideAnimationsAsync()
