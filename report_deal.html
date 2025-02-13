@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Deals</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .form-container form {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fff;
+            width: 30%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-container form h2 {
+            color: #007bff;
+            font-size: 1.2em;
+        }
+        .form-container form input[type="text"],
+        .form-container form input[type="submit"] {
+            display: block;
+            width: 90%;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .form-container form input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+        .form-container form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        th.sort-asc::after {
+            content: ' ▲';
+        }
+        th.sort-desc::after {
+            content: ' ▼';
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .deal-details {
+            display: none;
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .deal-details h3 {
+            margin-top: 0;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Report Deals</h1>
+
+    <!-- Filter and Report Deals Form -->
+    <h2>Filter Deals</h2>
+    <form method="post" action="{{ url_for('report_deals') }}">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Savings Diff</th>
+                <th>Savings Ratio</th>
+		<th>Calories Per Dollar</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="text" name="deal_name" placeholder="Deal Name"></td>
+                <td><input type="text" name="deal_price" placeholder="Min,Max"></td>
+                <td><input type="text" name="savings_diff" placeholder="Min,Max"></td>
+                <td><input type="text" name="savings_ratio" placeholder="Min,Max"></td>
+		<td><input type="text" name="calories_per_dollar" placeholder="Min,Max"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Filter">
+    </form>
+
+    <!-- Deals Table -->
+    <h2>Deals</h2>
+    <table id="dealsTable">
+        <thead>
+            <tr>
+                <th data-column="DealID">ID</th>
+                <th data-column="DealName">Name</th>
+                <th data-column="DealPrice">Price</th>
+                <th data-column="SavingsDiff">Savings Diff</th>
+                <th data-column="SavingsRatio">Savings Ratio</th>
+		<th data-column="CaloriesPerDollar">Calories Per Dollar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for deal in deals %}
+            <tr data-deal-id="{{ deal.DealID }}">
+                <td>{{ deal.DealID }}</td>
+                <td>{{ deal.DealName }}</td>
+                <td>${{ "%.2f"|format(deal.DealPrice) }}</td>
+                <td>${{ "%.2f"|format(deal.SavingsDiff) }}</td>
+                <td>{{ "%.0f"|format(deal.SavingsRatio) }}% off</td>
+		<td>{{ "%.2f"|format(deal.CaloriesPerDollar) }}</td>
+            </tr>
+            <tr class="deal-details" data-deal-id="{{ deal.DealID }}">
+                <td data-toggle="collapse" colspan="5">
+                    <h3>Products in Deal</h3>
+                    <ul>
+                        {% for product in deal.Products %}
+                        <li>{{ product.ProductName }} - ${{ "%.2f"|format(product.MenuPrice) }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('index') }}">Back to Home</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('dealsTable');
+            const headers = table.querySelectorAll('th[data-column]');
+            let sortOrder = 'asc';
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.getAttribute('data-column');
+                    const rows = Array.from(table.querySelectorAll('tbody tr:not(.deal-details)'));
+                    const detailRows = Array.from(table.querySelectorAll('tbody tr.deal-details'));
+
+                    rows.sort((a, b) => {
+                        const aText = a.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim();
+                        const bText = b.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim();
+
+                        if (!isNaN(aText) && !isNaN(bText)) {
+                            return sortOrder === 'asc' ? aText - bText : bText - aText;
+                        } else {
+                            return sortOrder === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+                        }
+                    });
+
+                    rows.forEach(row => table.querySelector('tbody').appendChild(row));
+
+                    // Re-insert detail rows correctly after sorting
+                    rows.forEach(row => {
+                        const dealId = row.getAttribute('data-deal-id');
+                        const detailRow = detailRows.find(r => r.getAttribute('data-deal-id') === dealId);
+                        if (detailRow) {
+                            table.querySelector('tbody').insertBefore(detailRow, row.nextSibling);
+                        }
+                    });
+
+                    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+
+                    headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+                    header.classList.add(sortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+                });
+            });
+
+            const dealRows = table.querySelectorAll('tbody tr[data-deal-id]');
+            dealRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const dealId = row.getAttribute('data-deal-id');
+                    const detailRow = table.querySelector(`tr.deal-details[data-deal-id="${dealId}"]`);
+                    detailRow.style.display = detailRow.style.display === 'table-row' ? 'none' : 'table-row';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
