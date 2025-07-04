@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Deal Maker</title>
+  <style>
+    .redundantTableContainer {
+      display: flex;
+      gap: 30px;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 5px 10px;
+    }
+    select, input {
+      width: 80px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Select a Product</h2>
+  <select id="productSelect">
+    <option value="">-- Choose --</option>
+    {% for product in products %}
+      <option value="{{ product['ProductID'] }}" data-name="{{ product['ProductName'] }}" data-price="{{ product['MenuPrice'] }}">
+        {{ product['ProductName'] }} (${{ '%.2f'|format(product['MenuPrice']) }})
+      </option>
+    {% endfor %}
+  </select>
+  <button onclick="addProduct()">Add Product</button>
+  <button onclick="createDeal()">Create Deal</button>
+
+  <div class="redundantTableContainer">
+    <!-- Deal Builder Table -->
+    <table id="dealBuilder">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Original Price</th>
+          <th>Modifier</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Deal Summary Table -->
+    <table id="dealTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Modified Price</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    function addProduct() {
+      const select = document.getElementById('productSelect');
+      const option = select.options[select.selectedIndex];
+      const name = option.dataset.name;
+      const price = parseFloat(option.dataset.price);
+      const id = option.value;
+
+      if (!id) return;
+
+      const tbody = document.querySelector('#dealBuilder tbody');
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td data-id="${id}">${name}</td>
+        <td class="originalPrice">${price.toFixed(2)}</td>
+        <td>
+          <select class="modifierType">
+            <option value="=">=</option>
+            <option value="-">-</option>
+            <option value="-%">-%</option>
+          </select>
+        </td>
+        <td><input type="number" class="modifierValue" step="0.01" /></td>
+      `;
+
+      tbody.appendChild(row);
+    }
+
+    function createDeal() {
+      const rows = document.querySelectorAll('#dealBuilder tbody tr');
+      const dealTable = document.querySelector('#dealTable tbody');
+      dealTable.innerHTML = ''; // Clear previous
+
+      rows.forEach(row => {
+        const name = row.children[0].textContent;
+        const original = parseFloat(row.querySelector('.originalPrice').textContent);
+        const modifier = row.querySelector('.modifierType').value;
+        const value = parseFloat(row.querySelector('.modifierValue').value);
+
+        let final = original;
+        if (!isNaN(value)) {
+          if (modifier === '=') final = value;
+          else if (modifier === '-') final = original - value;
+          else if (modifier === '-%') final = original * (1 - value / 100);
+        }
+
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${name}</td>
+          <td>${final.toFixed(2)}</td>
+        `;
+        dealTable.appendChild(newRow);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Product Output</title>
+</head>
+<body>
+  <h1>Product List Test</h1>
+  <ul>
+    {% for product in products %}
+      <li>{{ product['ProductName'] }} - ${{ '%.2f'|format(product['MenuPrice']) }}</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
