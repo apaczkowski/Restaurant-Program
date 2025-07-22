@@ -24,7 +24,7 @@ database and a clean UI for interaction.
 ---
 
 ## 📁 Project Structure
-'''
+```
 Restaurant-Program/
 ├── Templates/
 │ └── report_deal.html # Jinja2 HTML template
@@ -32,7 +32,7 @@ Restaurant-Program/
 ├── Restaurant.py # Main Flask application
 ├── products_and_deals.db # SQLite database
 └── README.md
-'''
+```
 ## ⚙️ Setup Instructions
 
 ##  Clone the repository
