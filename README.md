@@ -68,4 +68,5 @@ Restaurant-Program/
 🧑‍💻 Author
    Adam Paczkowski
 📍 St. Louis, MO
-   GitHub | LinkedIn
+   https://github.com/apaczkowski
+   https://www.linkedin.com/in/adam-paczkowski-b841602b7/
