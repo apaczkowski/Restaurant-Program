@@ -49,4 +49,23 @@ Restaurant-Program/
     
 ##  Open your browser to:
     http://127.0.0.1:5000/
-  
+
+📌 Future Enhancements
+-  Deploy app online (Render, Heroku, etc.)
+-  Build full Angular frontend (restaurant-deals/)
+-  Add authentication (login system)
+-  Export reports as PDF/CSV
+-  Mobile-friendly layout and CSS polishing
+
+🧠 What I Learned
+-  Through this project, I gained hands-on experience in:
+-  Building full-stack apps with Flask
+-  Structuring Jinja2 templates
+-  Handling local databases with SQLite
+-  Starting integration with Angular for modern frontend frameworks
+-  Project management using Git/GitHub
+
+🧑‍💻 Author
+   Adam Paczkowski
+📍 St. Louis, MO
+   GitHub | LinkedIn
