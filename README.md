@@ -64,9 +64,10 @@ Restaurant-Program/
 -  Handling local databases with SQLite
 -  Starting integration with Angular for modern frontend frameworks
 -  Project management using Git/GitHub
-
+```
 🧑‍💻 Author
    Adam Paczkowski
 📍 St. Louis, MO
    https://github.com/apaczkowski
    https://www.linkedin.com/in/adam-paczkowski-b841602b7/
+```
